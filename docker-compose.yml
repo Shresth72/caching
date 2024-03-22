@@ -6,3 +6,17 @@ services:
     command: redis-server --maxmemory 1GB --maxmemory-policy allkeys-lru
     ports:
       - "6379:6379"
+
+  postgres:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+volumes:
+  data: {}
