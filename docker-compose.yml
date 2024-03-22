@@ -1,0 +1,8 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    command: redis-server --maxmemory 1GB --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
