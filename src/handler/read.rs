@@ -1,7 +1,8 @@
-#![allow(unused_imports)]
 use crate::handler::Spell;
 use crate::state::AppState;
 use fred::prelude::*;
+use sqlx::query;
+use sqlx::Acquire;
 use std::error::Error;
 
 static QUERY: &str = "
@@ -20,9 +21,11 @@ pub async fn find_by_id(state: AppState, id: i64) -> Result<Option<Spell>, Box<d
         return Ok(Some(spell));
     }
 
+    let mut db_lock = s.database.acquire().await?;
+
     let res: Option<Spell> = sqlx::query_as(QUERY)
         .bind(id)
-        .fetch_optional(&s.database)
+        .fetch_optional(&mut *db_lock)
         .await?;
 
     if let Some(spell) = &res {
@@ -33,8 +36,12 @@ pub async fn find_by_id(state: AppState, id: i64) -> Result<Option<Spell>, Box<d
             let mut s = state.lock().await;
 
             tracing::info!("caching spell");
+
             // SET spell:id '{...}' [NX|XX] [EX <seconds>|PX <milliseconds>] [KEEPTTL]
-            let _ = s.cache.set(id, &spell, Some(Expiration::EX(60)), None, false).await;
+            let _ = s
+                .cache
+                .set(id, &spell, Some(Expiration::EX(60)), None, false)
+                .await;
         });
     }
 

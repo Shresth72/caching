@@ -5,17 +5,21 @@ use fred::{clients::RedisPool, prelude::*};
 use serde_json::Value;
 use sqlx::postgres::PgPool;
 use std::error::Error;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+pub type AppState = Arc<Mutex<StateInternal>>;
 
 pub struct StateInternal {
     pub database: sqlx::postgres::PgPool,
-    pub cache: Cache
+    pub cache: Cache,
 }
 
 impl StateInternal {
     pub fn new(db: PgPool, redis: RedisPool) -> Self {
-        StateInternal{
+        StateInternal {
             database: db,
-            cache: Cache{ internal: redis },
+            cache: Cache { internal: redis },
         }
     }
 }
@@ -31,7 +35,9 @@ impl Cache {
 
     pub async fn get(&mut self, id: i64) -> Result<Option<Spell>, Box<dyn Error>> {
         if !self.internal.is_connected() {
-            return Err(Box::new(simple_error::SimpleError::new("not connected redis")));
+            return Err(Box::new(simple_error::SimpleError::new(
+                "not connected redis",
+            )));
         }
 
         let value: Option<Value> = self.internal.get(Self::key_for_id(id)).await?;
@@ -52,26 +58,25 @@ impl Cache {
         spell: &Spell,
         expiration: Option<Expiration>,
         set_opts: Option<SetOptions>,
-        get: bool
+        get: bool,
     ) -> Result<(), Box<dyn Error>> {
         if !self.internal.is_connected() {
-            return Err(Box::new(simple_error::SimpleError::new("not connected redis")));
+            return Err(Box::new(simple_error::SimpleError::new(
+                "not connected redis",
+            )));
         }
 
         let value: Value = serde_json::to_value(spell)?;
         let key = Self::key_for_id(id);
-        self.internal.set(key, value.to_string(), expiration, set_opts, get).await?;
+        self.internal
+            .set(key, value.to_string(), expiration, set_opts, get)
+            .await?;
         Ok(())
     }
 
-    pub async fn del(
-        &mut self,
-        id: i64
-    ) -> Result<(), Box<dyn Error>> {
+    pub async fn del(&mut self, id: i64) -> Result<(), Box<dyn Error>> {
         let key = Self::key_for_id(id);
         self.internal.del(key).await?;
         Ok(())
     }
 }
-
-pub type AppState = std::sync::Arc<tokio::sync::Mutex<StateInternal>>;

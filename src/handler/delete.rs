@@ -23,6 +23,8 @@ pub async fn delete_spell(
         });
     }
 
+    
+
     let res = sqlx::query(QUERY)
         .bind(id)
         .execute(&s.database).await?;
