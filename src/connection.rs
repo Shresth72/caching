@@ -1,5 +1,6 @@
 use crate::state;
 
+use bloomfilter::Bloom;
 use dotenv::dotenv;
 use fred::prelude::*;
 use sqlx::postgres::PgPoolOptions;
@@ -38,7 +39,11 @@ pub async fn conn() -> Result<Arc<Mutex<state::StateInternal>>, Box<dyn Error>> 
         // let _ = redis_pool.flushall::<i32>(false).await;
     }
 
+    let bloom_filter: Bloom<String> = Bloom::new_for_fp_rate(1000, 0.001);
+
     Ok(Arc::new(Mutex::new(state::StateInternal::new(
-        dbpool, redis_pool,
+        dbpool,
+        redis_pool,
+        bloom_filter,
     ))))
 }

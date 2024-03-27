@@ -10,7 +10,7 @@ FROM spell
 WHERE id = $1
 ";
 
-// prevents cache stampede using backoff retry and cache lock
+// Implementing Cache Locks & Retry for Cache Stampedes
 // (only useful for high traffic applications)
 pub async fn find_by_id_cs(state: AppState, id: i64) -> Result<Option<Spell>, Box<dyn Error>> {
     let mut s = state.lock().await;

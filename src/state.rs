@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use crate::handler::Spell;
+use bloomfilter::Bloom;
 use fred::interfaces::KeysInterface;
 use fred::{clients::RedisPool, prelude::*};
 use serde_json::Value;
@@ -13,13 +14,15 @@ pub type AppState = Arc<Mutex<StateInternal>>;
 pub struct StateInternal {
     pub database: sqlx::postgres::PgPool,
     pub cache: Cache,
+    pub bloom_filter: Bloom<String>,
 }
 
 impl StateInternal {
-    pub fn new(db: PgPool, redis: RedisPool) -> Self {
+    pub fn new(db: PgPool, redis: RedisPool, bloom_filter: Bloom<String>) -> Self {
         StateInternal {
             database: db,
             cache: Cache { internal: redis },
+            bloom_filter,
         }
     }
 }
@@ -75,6 +78,7 @@ impl Cache {
         self.internal
             .set(key, value.to_string(), expiration, set_opts, get)
             .await?;
+
         Ok(())
     }
 
