@@ -1,5 +1,6 @@
 mod connection;
 mod handler;
+mod pitfalls;
 mod state;
 
 use axum::routing::{delete, get, post, put, Router};
@@ -11,7 +12,7 @@ use tower_http::trace::TraceLayer;
 async fn main() -> Result<(), Box<dyn Error>> {
     dotenv()?;
 
-    // initialize tracing
+    // initialize tracing -> INFO / DEBUG modes
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::DEBUG)
         .init();

@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use super::Spell;
 use crate::state::AppState;
 use sqlx::{Acquire, Postgres, Transaction};

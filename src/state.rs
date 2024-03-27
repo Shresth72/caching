@@ -33,6 +33,10 @@ impl Cache {
         format!("spell:{}", id)
     }
 
+    fn key_for_lock(id: i64) -> String {
+        format!("spell:lock:{}", id)
+    }
+
     pub async fn get(&mut self, id: i64) -> Result<Option<Spell>, Box<dyn Error>> {
         if !self.internal.is_connected() {
             return Err(Box::new(simple_error::SimpleError::new(
@@ -76,6 +80,26 @@ impl Cache {
 
     pub async fn del(&mut self, id: i64) -> Result<(), Box<dyn Error>> {
         let key = Self::key_for_id(id);
+        self.internal.del(key).await?;
+        Ok(())
+    }
+
+    pub async fn add_lock(&mut self, id: i64) -> Result<bool, Box<dyn Error>> {
+        let key = Self::key_for_lock(id);
+        let cached_lock: Option<Value> = self.internal.get(&key).await.unwrap_or(None);
+        if let Some(_) = cached_lock {
+            return Ok(false);
+        }
+
+        self.internal
+            .set(key, "1".to_string(), None, None, false)
+            .await?;
+
+        Ok(true)
+    }
+
+    pub async fn del_lock(&mut self, id: i64) -> Result<(), Box<dyn Error>> {
+        let key = Self::key_for_lock(id);
         self.internal.del(key).await?;
         Ok(())
     }
