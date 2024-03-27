@@ -1,8 +1,6 @@
 use crate::handler::Spell;
 use crate::state::AppState;
 use fred::prelude::*;
-use sqlx::query;
-use sqlx::Acquire;
 use std::error::Error;
 
 static QUERY: &str = "
@@ -21,11 +19,9 @@ pub async fn find_by_id(state: AppState, id: i64) -> Result<Option<Spell>, Box<d
         return Ok(Some(spell));
     }
 
-    let mut db_lock = s.database.acquire().await?;
-
     let res: Option<Spell> = sqlx::query_as(QUERY)
         .bind(id)
-        .fetch_optional(&mut *db_lock)
+        .fetch_optional(&s.database)
         .await?;
 
     if let Some(spell) = &res {

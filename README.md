@@ -31,26 +31,24 @@ Cache Stampede is a problem that occurs when a resource heavy cache item/page is
 
 To solve this problem, we can use the following methods:
 
-1. **Locking**: Upon a cache miss, the first request to the cache will lock the cache and fetch the data from the database. The subsequent requests will wait for the first request to finish and then return the data from the cache.
+### Locking
 
-```rust
-if let Some(_) = s.cache.get(id).await? {
-  let state = state.clone();
+Upon a cache miss, the first request to the cache will lock the cache and fetch the data from the database. The subsequent requests will wait for the first request to finish and then return the data from the cache.
 
-  tokio::spawn(async move {
-    let mut s = state.lock().await;
+However, this locking can fail. So, we can use the following methods:
 
-    tracing::info!("cache hit");
-    let spell = s.cache.get(id).await.unwrap().unwrap();
-  });
-}
-```
+1. The request is wait until the value is recomputed by another thread.
+2. The request can immediately return a not_found response and let the client handle the situation with a back-off retry.
+3. The system can maintain a stale version of the cached item to be used temporarily until the value is recomputed.
 
-2. **External Computation**: Use external process to recompute the value, and request workers get the value from the cache but never compute the value.
+### External Computation
+
+Use external process to recompute the value, and request workers get the value from the cache but never compute the value.
+This method can be activated in various ways either proactively when a cache key is nearing expiration or reactively when a cache miss occurs.
 
 - Disadvantage is bloating of memory as it is always the possibility of bulk of the data is never read in cache.
 
-3. **Probabilistic Early Expiration**:
+1. **Probabilistic Early Expiration**:
 
 ## Caching Penetration
 
