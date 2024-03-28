@@ -2,6 +2,7 @@ mod connection;
 mod handler;
 mod pitfalls;
 mod state;
+mod tests;
 
 use axum::routing::{delete, get, post, put, Router};
 use dotenv::dotenv;
