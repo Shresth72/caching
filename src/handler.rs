@@ -1,6 +1,6 @@
-mod create;
+pub(crate) mod create;
 mod delete;
-mod list;
+pub(crate) mod list;
 mod read;
 mod update;
 mod transaction;
@@ -27,6 +27,11 @@ pub async fn list(
         Ok(x) => Ok(Json(x)),
         Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
     }
+}
+
+#[cfg(test)]
+pub fn add(a: i32, b: i32) -> i32 {
+    a + b
 }
 
 pub async fn read(

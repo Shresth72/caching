@@ -54,7 +54,7 @@ pub async fn update(
 }
 
 /*
-curl -X PUT
+curl -X PUT \
      -H "Content-Type: application/json" \
      -d '{"damage": 100}' -sS \
      localhost:3000/spells/1

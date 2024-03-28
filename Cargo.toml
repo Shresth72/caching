@@ -20,3 +20,4 @@ dotenv = "0.15.0"
 tower-http = { version = "0.5", features = ["trace"] }
 simple-error = "0.3.0"
 bloomfilter = "1.0.13"
+rand = "0.8.5"
