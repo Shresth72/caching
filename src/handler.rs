@@ -1,9 +1,9 @@
 pub(crate) mod create;
-mod delete;
+pub(crate) mod delete;
 pub(crate) mod list;
-mod read;
-mod update;
-mod transaction;
+pub(crate) mod read;
+pub(crate) mod update;
+pub(crate) mod transaction;
 
 use axum::http::StatusCode;
 use axum::{extract::{State, Path}, Json};

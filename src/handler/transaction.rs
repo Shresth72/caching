@@ -14,7 +14,7 @@ pub async fn perform_transaction(
         INSERT INTO spell (name, damage) VALUES ($1, $2)
         "#,
     )
-    .bind("Fireball")
+    .bind("Psychic")
     .bind(10)
     .fetch_optional(&mut **transaction)
     .await?;

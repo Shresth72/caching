@@ -1,4 +1,4 @@
-#![allow(unused_imports)]
+#![allow(unused)]
 use crate::handler::Spell;
 use crate::state::AppState;
 use fred::prelude::*;
@@ -59,3 +59,24 @@ curl -X PUT \
      -d '{"damage": 100}' -sS \
      localhost:3000/spells/1
 */
+
+pub async fn update_cache_aside_pattern(
+    state: AppState,
+    id: i64,
+    body: UpdateBody,
+) -> Result<Option<Spell>, Box<dyn Error>> {
+    tracing::info!("updating spell: {}", id);
+    let mut s = state.lock().await;
+
+    // update db
+    let res: Option<Spell> = sqlx::query_as(QUERY)
+        .bind(body.damage)
+        .bind(id)
+        .fetch_optional(&s.database)
+        .await?;
+
+    // delete cache
+    s.cache.del(id).await?;
+
+    Ok(res)
+}

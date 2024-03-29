@@ -48,3 +48,5 @@ pub async fn find_by_id(state: AppState, id: i64) -> Result<Option<Spell>, Box<d
 /*
 curl -sS localhost:3000/spells/1 | jq
 */
+
+

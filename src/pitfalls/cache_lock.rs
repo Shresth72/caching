@@ -13,6 +13,8 @@ WHERE id = $1
 // Implementing Cache Locks & Retry for Cache Stampedes
 // (only useful for high traffic applications)
 pub async fn find_by_id_cs(state: AppState, id: i64) -> Result<Option<Spell>, Box<dyn Error>> {
+    // Also, ideally don't use state lock if this is implemented
+    // To avoid extra overhead
     let mut s = state.lock().await;
     let mut tries = 100;
 
