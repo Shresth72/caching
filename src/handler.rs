@@ -29,10 +29,10 @@ pub async fn list(
     }
 }
 
-#[cfg(test)]
-pub fn add(a: i32, b: i32) -> i32 {
-    a + b
-}
+// #[cfg(test)]
+// pub fn add(a: i32, b: i32) -> i32 {
+//     a + b
+// }
 
 pub async fn read(
     State(state): State<AppState>,
