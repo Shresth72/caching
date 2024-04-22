@@ -1,4 +1,4 @@
-#![allow(dead_code)]
+
 use crate::handler::Spell;
 use bloomfilter::Bloom;
 use fred::interfaces::KeysInterface;

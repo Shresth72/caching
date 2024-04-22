@@ -101,7 +101,7 @@ Following are the reasons:
 
 <!-- ### Can Cache Aside Pattern completely prevent data inconsistencies?
 
--  -->
+-  --> 
 
 ## Caching Invalidation
 
